@@ -1,0 +1,45 @@
+# based on https://gorails.com/setup/ubuntu/24.04
+FROM ubuntu:24.04
+ 
+# update the system
+RUN apt-get -y update
+RUN apt-get -y upgrade
+
+# install the basics
+RUN apt-get install -y git
+RUN apt-get install -y build-essential
+RUN apt-get install -y zlib1g-dev 
+RUN apt-get install -y libssl-dev 
+RUN apt-get install -y libreadline-dev 
+RUN apt-get install -y libyaml-dev 
+RUN apt-get install -y libsqlite3-dev 
+RUN apt-get install -y sqlite3 
+RUN apt-get install -y libxml2-dev 
+RUN apt-get install -y libxslt1-dev 
+RUN apt-get install -y libcurl4-openssl-dev 
+RUN apt-get install -y software-properties-common 
+RUN apt-get install -y libffi-dev
+
+# install the github cli
+RUN (type -p wget >/dev/null || (apt update && apt-get install wget -y)) \
+&& mkdir -p -m 755 /etc/apt/keyrings \
+&& wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+&& chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+&& echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+&& apt update \
+&& apt install gh -y
+
+# install adfs
+RUN cd
+RUN git clone https://github.com/excid3/asdf.git ~/.asdf
+RUN echo '. "$HOME/.asdf/asdf.sh"' >> ~/.bashrc
+RUN echo '. "$HOME/.asdf/completions/asdf.bash"' >> ~/.bashrc
+RUN echo 'legacy_version_file = yes' >> ~/.asdfrc
+RUN echo 'export EDITOR="code --wait"' >> ~/.bashrc
+
+
+
+# RUN echo 'asdf plugin add ruby' >> ~/.bashrc
+# RUN echo 'asdf install ruby 3.3.3' >> ~/.bashrc
+# RUN echo 'asdf global ruby 3.3.3' >> ~/.bashrc
+# RUN echo 'gem update --system' >> ~/.bashrc
