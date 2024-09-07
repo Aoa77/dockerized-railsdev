@@ -1,13 +1,11 @@
 FROM ubuntu:24.04
-
 SHELL ["/bin/bash", "-lc"]
-
-# update the system
 RUN \
-    echo "<packages>"; \
+    ##############################
+    # basics
+    ##############################
     apt-get -y update; \
     apt-get install -y build-essential; \
-    apt-get install -y git; \
     apt-get install -y libcurl4-openssl-dev; \
     apt-get install -y libffi-dev; \
     apt-get install -y libreadline-dev; \
@@ -20,7 +18,10 @@ RUN \
     apt-get install -y sqlite3; \
     apt-get install -y wget; \
     apt-get install -y zlib1g-dev; \
-    echo "    <github-cli>"; \
+    ##############################
+    # git and github-cli (gh)
+    ##############################
+    apt-get install -y git; \
     mkdir -p -m 755 /etc/apt/keyrings; \
     wget -qO- https://cli.github.com/packages/githubcli-archive-keyring.gpg \
     | tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null; \
@@ -30,5 +31,12 @@ RUN \
     https://cli.github.com/packages stable main" \
     | tee /etc/apt/sources.list.d/github-cli.list > /dev/null; \
     apt-get install -y gh; \
-    echo "    </github-cli>"; \
-    echo "</packages>";
+    ##############################
+    # ruby on rails
+    ##############################
+    apt-get install -y ruby-full; \
+    gem update --system; \
+    gem install rails; \
+    ##############################
+    ##############################
+    ##############################
