@@ -9,16 +9,15 @@ function Invoke-DockerizeRailsDev {
     [bool] $decision = $false;
     [string] $container_name = "railsdev";
     [string] $image_name = "ubuntu";
-    [string] $base_tag = "aoa77-railsdev-base";
     [string] $image_tag = "aoa77-railsdev";
 
     Write-Host;
-    [string] $container_status = Get-ContainerStatus $container_name;
-    if ($container_status.Length -gt 0) {
-        $decision = Confirm-DockerAction "Stop and remove?";
-        if ($decision -eq $false) {
-            return;
-        }
+    [string] $status = Get-ContainerStatus $container_name;
+    if ($status.Length -gt 0) {
+        # $decision = Confirm-DockerAction "Stop and remove?" -default 0;
+        # if ($decision -eq $false) {
+        #     return;
+        # }
         docker stop $container_name > $null;
         docker rm $container_name > $null;
     }
@@ -26,34 +25,34 @@ function Invoke-DockerizeRailsDev {
     Write-Host;
     Write-Host;
 
-    [string] $base_status = Get-ImageStatus $image_name $base_tag;
-    [string] $display_name = $image_name + ":" + $base_tag;
-    if ($base_status.Length -gt 0) {
-        $decision = Confirm-DockerAction "Remove and rebuild?";
-        if ($decision -eq $true) {
+    $status = Get-ImageStatus $image_name $image_tag;
+    [string] $display_name = $image_name + ":" + $image_tag;
+    if ($status.Length -gt 0) {
+        # $decision = Confirm-DockerAction "Remove and rebuild?" -default 1;
+        # if ($decision -eq $true) {
             docker image rm $display_name --force;
-        }
+        #}
     }
     
     Write-Host;
     Write-Host;
 
-    $base_status = Get-ImageStatus $image_name $base_tag;
-    if ($base_status.Length -eq 0) {
-        Write-Host -ForegroundColor Green "Building base image [$display_name]...";
-        docker build -t $display_name -f Dockerfile.base .;
+    $status = Get-ImageStatus $image_name $image_tag;
+    if ($status.Length -eq 0) {
+        Write-Host -ForegroundColor Green "Building image [$display_name]...";
+        docker build -t $display_name .;
     }
-    
-    $display_name = $image_name + ":" + $image_tag;
-    docker image rm $display_name --force;
-    docker build -t $display_name .;
+
+    Write-Host;
+    Write-Host;
+    Write-Host -ForegroundColor Green "Connecting to interactive session...";
     docker run -it --name $container_name $display_name;
 }
 
-function Confirm-DockerAction([string] $message) {
+function Confirm-DockerAction([string] $message, [int] $default) {
     [string] $title = "";
     $choices = "&Yes", "&No"
-    $decision = $Host.UI.PromptForChoice($title, $message, $choices, 1);
+    $decision = $Host.UI.PromptForChoice($title, $message, $choices, $default);
     return ($decision -eq 0);
 }
 
